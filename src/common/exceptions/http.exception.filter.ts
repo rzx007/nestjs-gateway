@@ -7,6 +7,7 @@ import {
   Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { BusinessException } from './business.exception';
 
 //  请求过程中的任意一步出错，都会进入过滤器
 @Catch(HttpException)
@@ -20,16 +21,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest();
     console.log('~~~进入异常拦截器~~~');
     // 获取异常状态码
-    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status =
+      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     // 设置错误信息
-    const message = exception.message ? exception.message : `${status >= 500 ? 'Service Error' : 'Client Error'}`;
+    const message = exception.message
+      ? exception.message
+      : `${status >= 500 ? 'Service Error' : 'Client Error'}`;
 
     const msgLog = {
-      code: -1,
-      status,
-      timestamp: new Date().toISOString(),
+      code: 0,
+      success: false,
+      // timestamp: new Date().toISOString(),
       path: request.url,
-      message: new ServiceUnavailableException().getResponse(),
+      // message: new ServiceUnavailableException().getResponse(),
+      message,
     };
     Logger.error('错误消息', JSON.stringify(msgLog), 'HttpExceptionFilter');
     // 设置返回的状态码， 请求头，发送错误信息

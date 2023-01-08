@@ -5,15 +5,21 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    console.log('Before...');
+    console.log('进入全局过滤器');
     // const req = context.switchToHttp().getRequest();
+    const res = context.switchToHttp().getResponse();
+    // 这里也可以设置(全局)响应头
+    res.setHeader('x-powered-by', 'nono1');
     return next.handle().pipe(
-      map((data) => ({
-        data,
-        code: 0,
-        message: 'success',
-        success: true,
-      })),
+      map((data) => {
+        console.log('退出全局过滤器, 没有错误将返回结果,结束请求');
+        return {
+          data,
+          code: 1,
+          message: 'success',
+          success: true,
+        };
+      }),
     );
   }
 }
